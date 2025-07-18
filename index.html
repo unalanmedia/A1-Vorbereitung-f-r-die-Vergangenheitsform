@@ -2,112 +2,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deutsch Quiz App</title>
+    <title>Deutsch Übung - habe, bin, war, hatte</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .correct { color: green; }
+        .wrong { color: red; }
+    </style>
 </head>
-<body class="bg-gray-50 flex justify-center">
-<div class="container mx-auto max-w-md p-4"><h1 class="text-2xl font-bold text-center mb-4">Deutsch Übung</h1>
+<body class="bg-gray-100 p-4"><div class="max-w-xl mx-auto bg-white p-4 rounded-lg shadow-md">
+    <h1 class="text-xl font-bold mb-4 text-center">Deutsch Grammatik Übung</h1>
+    <div id="quiz-container"></div>
+    <button onclick="loadQuestions()" class="mt-4 py-2 px-4 bg-blue-500 text-white rounded">Übung erneuern</button>
+    <div id="result" class="mt-4 text-center font-bold"></div>
+</div><script>
+let fragen = [
+    {satz: "Ich ___ gestern müde.", antwort: "war", grund: "'war' is used for simple past of 'sein'."},
+    {satz: "Du ___ recht.", antwort: "hast", grund: "'hast' is the second person singular of 'haben'."},
+    {satz: "Er ___ einen Hund.", antwort: "hatte", grund: "'hatte' is the past form of 'haben' (he had)."},
+    {satz: "Wir ___ zu Hause.", antwort: "sind", grund: "'sind' is present plural of 'sein', but here you must select 'bin' for singular context."},
+    {satz: "Ich ___ heute Zeit.", antwort: "habe", grund: "'habe' is present form of 'haben' (I have)."},
+    // More questions up to 100 items
+];
 
-<div id="quiz-container" class="space-y-4"></div>
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
 
-<button id="refresh-btn" onclick="generateQuiz()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Übung erneuern</button>
+function loadQuestions() {
+    document.getElementById('result').innerHTML = '';
+    let quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = '';
 
-<div id="results" class="text-center mt-4 font-bold"></div>
-
-<script>
-    const verbs = [
-        { sentence: "Ich ___ gestern im Kino.", answer: "war", info: "'War' because it's past tense of 'sein' meaning 'was'." },
-        { sentence: "Ich ___ Hunger gehabt.", answer: "habe", info: "'Habe' because it’s present perfect ('haben')." },
-        { sentence: "Ich ___ sehr müde.", answer: "bin", info: "'Bin' because it's present tense form of 'sein'." },
-        { sentence: "Ich ___ letztes Jahr viel Zeit.", answer: "hatte", info: "'Hatte' because it means 'had' in past tense." },
-    ];
-
-    let allQuestions = [];
-
-    function generateAllQuestions() {
-        allQuestions = [];
-        for (let i = 0; i < 100; i++) {
-            const verb = verbs[Math.floor(Math.random() * verbs.length)];
-            allQuestions.push(verb);
-        }
+    let selectedFragen = shuffle(fragen).slice(0, 6);
+    for (let i = 0; i < 4; i++) {
+        selectedFragen.push({satz: `Neue Frage ${i+1}`, antwort: "habe", grund: "'habe' for demonstration purposes."});
     }
+    selectedFragen = shuffle(selectedFragen);
 
-    function generateQuiz() {
-        if (allQuestions.length < 40) generateAllQuestions();
-
-        const quizContainer = document.getElementById("quiz-container");
-        quizContainer.innerHTML = "";
-
-        currentQuiz = allQuestions.splice(0, 6);
-        for (let i = 0; i < 4; i++) { 
-            const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            currentQuiz.push(randomVerb);
-        }
-
-        currentQuiz.sort(() => 0.5 - Math.random());
-
-        currentQuiz.forEach((q, idx) => {
-            const div = document.createElement("div");
-            div.className = "border p-4 rounded shadow bg-white";
-            div.innerHTML = `
-                <p class="mb-2">${idx + 1}. ${q.sentence.replace("___", "...")}</p>
-                <div class="grid grid-cols-2 gap-2">
-                    ${["habe", "bin", "war", "hatte"].map(option => `
-                        <button class="option-btn px-3 py-1 border rounded hover:bg-gray-200" onclick="checkAnswer(this, '${option}', '${q.answer}', '${q.info}')">${option}</button>
-                    `).join('')}
-                </div>
-                <button onclick="alert('${q.info}')" class="mt-2 text-sm text-blue-600">Info</button>
-                <span class="result ml-2"></span>
-            `;
-            quizContainer.appendChild(div);
-        });
-
-        document.getElementById("results").innerHTML = "";
-    }
-
-    function checkAnswer(button, selected, correct, info) {
-        const result = button.parentElement.nextElementSibling.nextElementSibling;
-        if (selected === correct) {
-            result.innerHTML = "✅";
-        } else {
-            result.innerHTML = "❌";
-        }
-        button.parentElement.querySelectorAll('button').forEach(btn => btn.disabled = true);
-        calculateResults();
-    }
-
-    function calculateResults() {
-        const results = document.querySelectorAll('.result');
-        const correctAnswers = Array.from(results).filter(r => r.innerHTML === "✅").length;
-        const total = results.length;
-        const percent = Math.round((correctAnswers / total) * 100);
-
-        const resultContainer = document.getElementById("results");
-        let msg = "";
-        let color = "";
-        if (percent >= 80) {
-            msg = "Gut gemacht! 😊";
-            color = "bg-green-500";
-        } else if (percent >= 50) {
-            msg = "Arbeite weiter! 🙂";
-            color = "bg-orange-500";
-        } else {
-            msg = "Du musst mehr üben! 😞";
-            color = "bg-red-500";
-        }
-
-        resultContainer.innerHTML = `
-            ${correctAnswers}/${total} - ${percent}%<br>
-            <button class="mt-2 px-4 py-2 text-white rounded ${color}">${msg}</button>
+    selectedFragen.slice(0,10).forEach((frage, index) => {
+        quizContainer.innerHTML += `
+            <div class="mb-4">
+                <p>${index + 1}. ${frage.satz}</p>
+                <select class="antwort border rounded p-1">
+                    <option value="">Wähle eine Antwort</option>
+                    <option value="habe">habe</option>
+                    <option value="bin">bin</option>
+                    <option value="war">war</option>
+                    <option value="hatte">hatte</option>
+                </select>
+                <button onclick="alert('${frage.grund}')" class="ml-2 text-blue-500">Info</button>
+                <span class="feedback"></span>
+            </div>
         `;
-    }
+    });
 
-    window.onload = () => {
-        generateAllQuestions();
-        generateQuiz();
-    }
-</script>
+    quizContainer.innerHTML += '<button onclick="checkAnswers()" class="py-2 px-4 bg-green-500 text-white rounded">Antworten prüfen</button>';
+}
 
-</div>
-</body>
+function checkAnswers() {
+    let correct = 0;
+    let total = document.querySelectorAll('.antwort').length;
+
+    document.querySelectorAll('.antwort').forEach((select, index) => {
+        let feedback = select.nextElementSibling.nextElementSibling;
+        if (select.value === fragen[index % fragen.length].antwort) {
+            feedback.innerHTML = '✔️';
+            feedback.className = 'feedback correct ml-2';
+            correct++;
+        } else {
+            feedback.innerHTML = '❌';
+            feedback.className = 'feedback wrong ml-2';
+        }
+    });
+
+    let percentage = (correct / total) * 100;
+    let resultDiv = document.getElementById('result');
+
+    if (percentage >= 80) {
+        resultDiv.innerHTML = `<button class="py-2 px-4 bg-green-500 text-white rounded">Weiter - Du bist gut! (${percentage}%)</button>`;
+    } else if (percentage >= 50) {
+        resultDiv.innerHTML = `<button class="py-2 px-4 bg-orange-500 text-white rounded">Mach weiter! (${percentage}%)</button>`;
+    } else {
+        resultDiv.innerHTML = `<button class="py-2 px-4 bg-red-500 text-white rounded">Du musst mehr üben! (${percentage}%)</button>`;
+    }
+}
+
+window.onload = loadQuestions;
+</script></body>
 </html>
