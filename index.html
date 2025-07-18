@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deutsch Quiz App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex justify-center">
+<div class="container mx-auto max-w-md p-4"><h1 class="text-2xl font-bold text-center mb-4">Deutsch Übung</h1>
+
+<div id="quiz-container" class="space-y-4"></div>
+
+<button id="refresh-btn" onclick="generateQuiz()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Übung erneuern</button>
+
+<div id="results" class="text-center mt-4 font-bold"></div>
+
+<script>
+    const verbs = [
+        { sentence: "Ich ___ gestern im Kino.", answer: "war", info: "'War' because it's past tense of 'sein' meaning 'was'." },
+        { sentence: "Ich ___ Hunger gehabt.", answer: "habe", info: "'Habe' because it’s present perfect ('haben')." },
+        { sentence: "Ich ___ sehr müde.", answer: "bin", info: "'Bin' because it's present tense form of 'sein'." },
+        { sentence: "Ich ___ letztes Jahr viel Zeit.", answer: "hatte", info: "'Hatte' because it means 'had' in past tense." },
+    ];
+
+    let allQuestions = [];
+
+    function generateAllQuestions() {
+        allQuestions = [];
+        for (let i = 0; i < 100; i++) {
+            const verb = verbs[Math.floor(Math.random() * verbs.length)];
+            allQuestions.push(verb);
+        }
+    }
+
+    function generateQuiz() {
+        if (allQuestions.length < 40) generateAllQuestions();
+
+        const quizContainer = document.getElementById("quiz-container");
+        quizContainer.innerHTML = "";
+
+        currentQuiz = allQuestions.splice(0, 6);
+        for (let i = 0; i < 4; i++) { 
+            const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            currentQuiz.push(randomVerb);
+        }
+
+        currentQuiz.sort(() => 0.5 - Math.random());
+
+        currentQuiz.forEach((q, idx) => {
+            const div = document.createElement("div");
+            div.className = "border p-4 rounded shadow bg-white";
+            div.innerHTML = `
+                <p class="mb-2">${idx + 1}. ${q.sentence.replace("___", "...")}</p>
+                <div class="grid grid-cols-2 gap-2">
+                    ${["habe", "bin", "war", "hatte"].map(option => `
+                        <button class="option-btn px-3 py-1 border rounded hover:bg-gray-200" onclick="checkAnswer(this, '${option}', '${q.answer}', '${q.info}')">${option}</button>
+                    `).join('')}
+                </div>
+                <button onclick="alert('${q.info}')" class="mt-2 text-sm text-blue-600">Info</button>
+                <span class="result ml-2"></span>
+            `;
+            quizContainer.appendChild(div);
+        });
+
+        document.getElementById("results").innerHTML = "";
+    }
+
+    function checkAnswer(button, selected, correct, info) {
+        const result = button.parentElement.nextElementSibling.nextElementSibling;
+        if (selected === correct) {
+            result.innerHTML = "✅";
+        } else {
+            result.innerHTML = "❌";
+        }
+        button.parentElement.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        calculateResults();
+    }
+
+    function calculateResults() {
+        const results = document.querySelectorAll('.result');
+        const correctAnswers = Array.from(results).filter(r => r.innerHTML === "✅").length;
+        const total = results.length;
+        const percent = Math.round((correctAnswers / total) * 100);
+
+        const resultContainer = document.getElementById("results");
+        let msg = "";
+        let color = "";
+        if (percent >= 80) {
+            msg = "Gut gemacht! 😊";
+            color = "bg-green-500";
+        } else if (percent >= 50) {
+            msg = "Arbeite weiter! 🙂";
+            color = "bg-orange-500";
+        } else {
+            msg = "Du musst mehr üben! 😞";
+            color = "bg-red-500";
+        }
+
+        resultContainer.innerHTML = `
+            ${correctAnswers}/${total} - ${percent}%<br>
+            <button class="mt-2 px-4 py-2 text-white rounded ${color}">${msg}</button>
+        `;
+    }
+
+    window.onload = () => {
+        generateAllQuestions();
+        generateQuiz();
+    }
+</script>
+
+</div>
+</body>
+</html>
