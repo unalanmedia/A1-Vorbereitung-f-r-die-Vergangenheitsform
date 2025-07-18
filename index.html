@@ -1,201 +1,92 @@
 <!DOCTYPE html><html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Deutsches Verbquiz</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 1rem;
-    }
-    .frage {
-      background: white;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .antworten button {
-      display: block;
-      width: 100%;
-      margin: 0.25rem 0;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
-    .antworten button.richtig {
-      background-color: #d4edda;
-      border-color: #28a745;
-    }
-    .antworten button.falsch {
-      background-color: #f8d7da;
-      border-color: #dc3545;
-    }
-    .resultat {
-      font-size: 1.2rem;
-      text-align: center;
-      margin-top: 1rem;
-    }
-    .footer-button {
-      text-align: center;
-      margin-top: 1.5rem;
-    }
-    .footer-button button {
-      padding: 0.8rem;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-    }
-    .weiter-gruen {
-      background-color: #28a745;
-    }
-    .weiter-orange {
-      background-color: #fd7e14;
-    }
-    .weiter-rot {
-      background-color: #dc3545;
-    }
-    .info-button {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: blue;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    .info-text {
-      display: none;
-      font-size: 0.9rem;
-      background: #f0f0f0;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      border-radius: 5px;
-    }
-    @media (max-width: 600px) {
-      .container {
-        padding: 0.5rem;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deutsch Übung - habe, bin, war, hatte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .correct { color: green; }
+        .wrong { color: red; }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <h2>Wähle das richtige Hilfsverb</h2>
-    <div id="quiz"></div>
-    <div class="resultat" id="resultat"></div>
-    <div class="footer-button" id="footer-button"></div>
-  </div>  <script>
-    const alleFragen = [
-      { frage: "Ich ___ gestern krank.", korrekt: "war", erklaerung: "'sein' wird mit Zuständen und Zustandsänderungen verwendet. 'war' ist die Vergangenheitsform." },
-      { frage: "Ich ___ einen Hund gehabt.", korrekt: "habe", erklaerung: "Present perfect (Perfekt) mit 'haben' bei Besitz." },
-      { frage: "Er ___ ein Auto gekauft.", korrekt: "hatte", erklaerung: "'hatte' ist Präteritum von 'haben', verwendet für Besitz in der Vergangenheit." },
-      { frage: "Wir ___ nach Hause gegangen.", korrekt: "sind", erklaerung: "'sein' wird bei Bewegungsverben im Perfekt verwendet." },
-      // 96 tane daha eklenecek (örnekler çoğaltılacak)
-    ];
+<body class="bg-gray-100 p-4"><div class="max-w-xl mx-auto bg-white p-4 rounded-lg shadow-md">
+    <h1 class="text-xl font-bold mb-4 text-center">Deutsch Grammatik Übung</h1>
+    <div id="quiz-container"></div>
+    <button onclick="loadQuestions()" class="mt-4 py-2 px-4 bg-blue-500 text-white rounded">Übung erneuern</button>
+    <div id="result" class="mt-4 text-center font-bold"></div>
+</div><script>
+let fragen = [
+    {satz: "Ich ___ gestern müde.", antwort: "war", grund: "'war' is used for simple past of 'sein'."},
+    {satz: "Du ___ recht.", antwort: "hast", grund: "'hast' is the second person singular of 'haben'."},
+    {satz: "Er ___ einen Hund.", antwort: "hatte", grund: "'hatte' is the past form of 'haben' (he had)."},
+    {satz: "Wir ___ zu Hause.", antwort: "sind", grund: "'sind' is present plural of 'sein', but here you must select 'bin' for singular context."},
+    {satz: "Ich ___ heute Zeit.", antwort: "habe", grund: "'habe' is present form of 'haben' (I have)."},
+    // More questions up to 100 items
+];
 
-    let aktuelleFragen = [];
-    let antworten = [];
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
 
-    function neueFragen() {
-      const neu = [];
-      const start = Math.floor(Math.random() * (alleFragen.length - 10));
-      for (let i = start; i < start + 10; i++) {
-        neu.push(alleFragen[i]);
-      }
-      aktuelleFragen = neu;
-      antworten = Array(10).fill(null);
-      zeigeQuiz();
+function loadQuestions() {
+    document.getElementById('result').innerHTML = '';
+    let quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = '';
+
+    let selectedFragen = shuffle(fragen).slice(0, 6);
+    for (let i = 0; i < 4; i++) {
+        selectedFragen.push({satz: `Neue Frage ${i+1}`, antwort: "habe", grund: "'habe' for demonstration purposes."});
     }
+    selectedFragen = shuffle(selectedFragen);
 
-    function zeigeQuiz() {
-      const quizDiv = document.getElementById("quiz");
-      quizDiv.innerHTML = "";
+    selectedFragen.slice(0,10).forEach((frage, index) => {
+        quizContainer.innerHTML += `
+            <div class="mb-4">
+                <p>${index + 1}. ${frage.satz}</p>
+                <select class="antwort border rounded p-1">
+                    <option value="">Wähle eine Antwort</option>
+                    <option value="habe">habe</option>
+                    <option value="bin">bin</option>
+                    <option value="war">war</option>
+                    <option value="hatte">hatte</option>
+                </select>
+                <button onclick="alert('${frage.grund}')" class="ml-2 text-blue-500">Info</button>
+                <span class="feedback"></span>
+            </div>
+        `;
+    });
 
-      aktuelleFragen.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.className = "frage";
-        div.innerHTML = `<p><strong>${index + 1}. ${item.frage}</strong></p>`;
+    quizContainer.innerHTML += '<button onclick="checkAnswers()" class="py-2 px-4 bg-green-500 text-white rounded">Antworten prüfen</button>';
+}
 
-        const antwortContainer = document.createElement("div");
-        antwortContainer.className = "antworten";
+function checkAnswers() {
+    let correct = 0;
+    let total = document.querySelectorAll('.antwort').length;
 
-        ["habe", "bin", "war", "hatte"].forEach((option) => {
-          const btn = document.createElement("button");
-          btn.textContent = option;
-          btn.onclick = () => pruefen(index, option, btn);
-          antwortContainer.appendChild(btn);
-        });
+    document.querySelectorAll('.antwort').forEach((select, index) => {
+        let feedback = select.nextElementSibling.nextElementSibling;
+        if (select.value === fragen[index % fragen.length].antwort) {
+            feedback.innerHTML = '✔️';
+            feedback.className = 'feedback correct ml-2';
+            correct++;
+        } else {
+            feedback.innerHTML = '❌';
+            feedback.className = 'feedback wrong ml-2';
+        }
+    });
 
-        const infoBtn = document.createElement("div");
-        infoBtn.className = "info-button";
-        infoBtn.textContent = "Warum? (Englische Erklärung)";
-        const infoText = document.createElement("div");
-        infoText.className = "info-text";
-        infoText.textContent = item.erklaerung;
-        infoBtn.onclick = () => {
-          infoText.style.display = infoText.style.display === "block" ? "none" : "block";
-        };
+    let percentage = (correct / total) * 100;
+    let resultDiv = document.getElementById('result');
 
-        div.appendChild(antwortContainer);
-        div.appendChild(infoBtn);
-        div.appendChild(infoText);
-
-        quizDiv.appendChild(div);
-      });
+    if (percentage >= 80) {
+        resultDiv.innerHTML = `<button class="py-2 px-4 bg-green-500 text-white rounded">Weiter - Du bist gut! (${percentage}%)</button>`;
+    } else if (percentage >= 50) {
+        resultDiv.innerHTML = `<button class="py-2 px-4 bg-orange-500 text-white rounded">Mach weiter! (${percentage}%)</button>`;
+    } else {
+        resultDiv.innerHTML = `<button class="py-2 px-4 bg-red-500 text-white rounded">Du musst mehr üben! (${percentage}%)</button>`;
     }
+}
 
-    function pruefen(index, antwort, btn) {
-      if (antworten[index] !== null) return;
-      const korrekt = aktuelleFragen[index].korrekt;
-      const buttons = btn.parentElement.querySelectorAll("button");
-      buttons.forEach(b => b.disabled = true);
-      if (antwort === korrekt) {
-        btn.classList.add("richtig");
-        antworten[index] = true;
-      } else {
-        btn.classList.add("falsch");
-        antworten[index] = false;
-      }
-      zeigeErgebnis();
-    }
-
-    function zeigeErgebnis() {
-      const resultDiv = document.getElementById("resultat");
-      const footer = document.getElementById("footer-button");
-      const beantwortet = antworten.filter(a => a !== null);
-      if (beantwortet.length < 10) {
-        resultDiv.textContent = `${beantwortet.length}/10 beantwortet.`;
-        footer.innerHTML = "";
-        return;
-      }
-      const richtig = antworten.filter(a => a === true).length;
-      const prozent = (richtig / 10) * 100;
-      resultDiv.textContent = `Dein Ergebnis: ${richtig}/10 (${prozent}%)`;
-
-      let text = "", klasse = "";
-      if (prozent >= 80) {
-        text = "✔️ Weitermachen – Du bist gut!";
-        klasse = "weiter-gruen";
-      } else if (prozent >= 50) {
-        text = "➡️ Weitermachen – Weiter üben!";
-        klasse = "weiter-orange";
-      } else {
-        text = "❗ Viel üben!";
-        klasse = "weiter-rot";
-      }
-      footer.innerHTML = `<button class="${klasse}" onclick="neueFragen()">${text}</button>`;
-    }
-
-    neueFragen();
-  </script></body>
+window.onload = loadQuestions;
+</script></body>
 </html>
