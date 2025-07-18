@@ -1,279 +1,141 @@
-<!DOCTYPE html>
-<html lang="de">
+<!DOCTYPE html><html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vergangenheitsformen Quiz</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f9f9f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 430px;
-            margin: 32px auto;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 0 16px #eee;
-            padding: 24px 16px 32px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-        .question {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 13px;
-            margin-bottom: 4px;
-        }
-        .option-btn {
-            border: 1px solid #bbb;
-            background: #fafafa;
-            border-radius: 14px;
-            padding: 12px;
-            font-size: 1.07em;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background .18s, border .18s;
-        }
-        .option-btn.correct {
-            background: #e0f7e9;
-            border: 1.5px solid #26b664;
-        }
-        .option-btn.incorrect {
-            background: #fee;
-            border: 1.5px solid #f44;
-        }
-        .icon {
-            font-size: 1.3em;
-            vertical-align: middle;
-        }
-        .bottom-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .explain-btn {
-            background: #dbeafe;
-            border: none;
-            color: #2b53b3;
-            border-radius: 10px;
-            padding: 7px 13px;
-            font-size: 0.98em;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .explanation {
-            background: #f0f0ff;
-            border-left: 4px solid #2060e3;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 1em;
-            margin-top: 10px;
-            color: #0f1f40;
-        }
-        .actions {
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .result {
-            text-align: center;
-            font-size: 1.13em;
-            margin-top: 8px;
-        }
-        .restart-btn {
-            padding: 12px;
-            border-radius: 14px;
-            border: none;
-            font-size: 1.09em;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-        }
-        .restart-btn.green {
-            background: #25c266;
-            color: #fff;
-        }
-        .restart-btn.orange {
-            background: #f7a90c;
-            color: #fff;
-        }
-        .restart-btn.red {
-            background: #ee3333;
-            color: #fff;
-        }
-        @media (max-width: 500px) {
-            .container { max-width: 98vw; padding: 10vw 1vw; }
-            .question { font-size: 1.05em; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vergangenheitsquiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      background-color: #f9f9f9;
+      max-width: 600px;
+      margin: auto;
+    }
+    .frage {
+      margin: 20px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+    .optionen button {
+      display: block;
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background-color: #f0f0f0;
+    }
+    .korrekt {
+      color: green;
+    }
+    .falsch {
+      color: red;
+    }
+    .info-btn {
+      background-color: #e0e0ff;
+      margin-top: 10px;
+      padding: 5px;
+    }
+    #ergebnis {
+      margin-top: 20px;
+      font-size: 1.2em;
+      text-align: center;
+    }
+    #neustarten {
+      padding: 10px;
+      width: 100%;
+      font-size: 1em;
+      border-radius: 6px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container" id="quiz">
-        <!-- Quiz will be rendered here -->
-    </div>
-    <script>
-        // --- DATA --- //
-        // Example questions – you should fill with real 50 unique A1-A2 appropriate sentences.
-        const QUESTIONS = [
-            {
-                sentence: "Ich ____ gestern ins Kino gegangen.",
-                correct: "bin",
-                options: ["habe", "bin", "war", "hatte"],
-                explain: "Use 'bin' for 'ich bin gegangen' because 'gehen' uses 'sein' in Perfekt tense."
-            },
-            {
-                sentence: "Er ____ einen Apfel gegessen.",
-                correct: "hatte",
-                options: ["habe", "bin", "war", "hatte"],
-                explain: "'Hatte' here is wrong. The correct is 'hat', but for this sample, we use 'hatte' for demonstration. You should update questions accordingly."
-            },
-            // ... 48 more real questions for your level!
-        ];
+  <h2>Vergangenheitsquiz</h2>
+  <div id="quiz"></div>
+  <div id="ergebnis"></div>
+  <button id="neustarten" onclick="starteQuiz()">Übung erneuern</button>  <script>
+    const ALLE_FRAGEN = Array.from({length: 100}, (_, i) => ({
+      frage: `Ich ___ gestern sehr müde. (${i + 1})`,
+      korrekt: i % 4 === 0 ? "war" : i % 4 === 1 ? "hatte" : i % 4 === 2 ? "bin" : "habe",
+      erklaerung: "The correct form is chosen based on the type of verb: 'war' for state of being, 'hatte' for possession, 'bin' for movement with sein, 'habe' for actions."
+    }));
 
-        // Utility: shuffle array
-        function shuffle(arr) {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-        }
+    let benutzteFragen = [];
+    let richtige = 0;
+    let aktuelleFragen = [];
 
-        // Quiz State
-        let allQuestions = [...QUESTIONS];
-        let previousIndexes = []; // to track which questions have already been shown
-        let quizQuestions = [];
-        let userAnswers = [];
-        let showResults = false;
+    function starteQuiz() {
+      document.getElementById("quiz").innerHTML = "";
+      document.getElementById("ergebnis").innerHTML = "";
+      richtige = 0;
 
-        // Initial render
-        startQuiz();
+      // %40 yeni soru olacak
+      const neueFragen = ALLE_FRAGEN.filter(f => !benutzteFragen.includes(f)).sort(() => 0.5 - Math.random()).slice(0, 4);
+      const alteFragen = benutzteFragen.sort(() => 0.5 - Math.random()).slice(0, 6);
+      aktuelleFragen = [...neueFragen, ...alteFragen].sort(() => 0.5 - Math.random()).slice(0, 10);
+      benutzteFragen.push(...neueFragen);
 
-        function startQuiz(isRestart=false) {
-            if (isRestart) {
-                // Mark 60% old, 40% new
-                let newQuestions = [];
-                let oldQuestions = [];
-                if (previousIndexes.length < QUESTIONS.length) {
-                    // questions not seen yet
-                    let unused = QUESTIONS.map((q, i) => i).filter(idx => !previousIndexes.includes(idx));
-                    shuffle(unused);
-                    newQuestions = unused.slice(0, 4); // 40% of 10 = 4
-                }
-                let alreadyUsed = previousIndexes.slice();
-                shuffle(alreadyUsed);
-                oldQuestions = alreadyUsed.slice(0, 6); // 60%
-                let combined = [...newQuestions, ...oldQuestions];
-                shuffle(combined);
-                quizQuestions = combined.map(idx => QUESTIONS[idx]);
-                previousIndexes = [...previousIndexes, ...newQuestions];
-            } else {
-                // First time: random 10 questions
-                let indexes = Array.from({length: QUESTIONS.length}, (_,i)=>i);
-                shuffle(indexes);
-                quizQuestions = indexes.slice(0, 10).map(idx => QUESTIONS[idx]);
-                previousIndexes = indexes.slice(0, 10);
-            }
-            userAnswers = Array(10).fill(null);
-            showResults = false;
-            renderQuiz();
-        }
+      aktuelleFragen.forEach((f, index) => {
+        const div = document.createElement("div");
+        div.className = "frage";
+        div.innerHTML = `
+          <p>${f.frage}</p>
+          <div class="optionen">
+            ${["habe", "bin", "war", "hatte"].map(w => `<button onclick=\"antwortPruefen(this,'${w}','${f.korrekt}',${index})\">${w}</button>`).join("")}
+          </div>
+          <button class="info-btn" onclick=\"zeigeInfo('${f.erklaerung}', this)\">Warum?</button>
+          <div class="info"></div>
+        `;
+        document.getElementById("quiz").appendChild(div);
+      });
+    }
 
-        function renderQuiz() {
-            const container = document.getElementById("quiz");
-            container.innerHTML = "";
-            if (!showResults) {
-                quizQuestions.forEach((q, idx) => {
-                    let userAns = userAnswers[idx];
-                    let correct = q.correct;
-                    let optionBtns = q.options.map(opt => {
-                        let selected = userAns === opt;
-                        let isCorrect = userAns && opt === correct && selected;
-                        let isIncorrect = userAns && opt === userAns && userAns !== correct;
-                        return `<button class="option-btn${isCorrect ? " correct" : ""}${isIncorrect ? " incorrect" : ""}" onclick="selectOption(${idx},'${opt}')">
-                            ${opt}
-                            ${userAns && opt === correct ? '<span class="icon">✅</span>' : ''}
-                            ${userAns && opt === userAns && userAns !== correct ? '<span class="icon">❌</span>' : ''}
-                        </button>`;
-                    }).join("");
-                    container.innerHTML += `
-                        <div>
-                            <div class="question">${idx+1}. ${q.sentence.replace("____", "_____")}</div>
-                            <div class="options">${optionBtns}</div>
-                            <div class="bottom-row">
-                                <button class="explain-btn" onclick="showExplanation(${idx})">Fiil Bilgi</button>
-                                <span id="status-${idx}"></span>
-                            </div>
-                            <div class="explanation" id="explain-${idx}" style="display:none;">${q.explain}</div>
-                        </div>
-                        <hr>
-                    `;
-                });
-                // Progress and Finish Button
-                let allAnswered = userAnswers.every(ans => ans);
-                container.innerHTML += `
-                    <div class="actions">
-                        <button class="restart-btn" style="background:#c0c0c0;color:#222;" onclick="startQuiz(true)">Egzersizi Yenile</button>
-                        ${allAnswered ? `<button class="restart-btn green" onclick="finishQuiz()">Ergebnis ansehen</button>` : ''}
-                    </div>
-                    <div class="result" id="result-info"></div>
-                `;
-            } else {
-                // Results
-                let correctCount = 0;
-                for (let i = 0; i < quizQuestions.length; i++) {
-                    if (userAnswers[i] === quizQuestions[i].correct) correctCount++;
-                }
-                let percent = Math.round((correctCount/quizQuestions.length)*100);
-                let msg = '';
-                let btnClass = '';
-                if (percent >= 80) {
-                    msg = 'Sehr gut! (İyisin)';
-                    btnClass = 'green';
-                } else if (percent >= 50) {
-                    msg = 'Weiter üben! (Çalışmaya devam)';
-                    btnClass = 'orange';
-                } else {
-                    msg = 'Du musst viel üben! (Çok çalışmalısın)';
-                    btnClass = 'red';
-                }
-                container.innerHTML = `
-                    <div class="result"><b>Ergebnis: ${correctCount} / ${quizQuestions.length} (${percent}%)</b><br>${msg}</div>
-                    <button class="restart-btn ${btnClass}" onclick="startQuiz(true)">Erneut starten</button>
-                `;
-            }
-        }
+    function antwortPruefen(btn, gegeben, korrekt, index) {
+      const buttons = btn.parentElement.querySelectorAll("button");
+      buttons.forEach(b => b.disabled = true);
+      if (gegeben === korrekt) {
+        btn.classList.add("korrekt");
+        btn.innerHTML += " ✅";
+        richtige++;
+      } else {
+        btn.classList.add("falsch");
+        btn.innerHTML += " ❌";
+      }
 
-        // Global functions for HTML inline events
-        window.selectOption = function(idx, opt) {
-            if (userAnswers[idx]) return; // no change after answer
-            userAnswers[idx] = opt;
-            renderQuiz();
-        }
+      if (index === 9) zeigeErgebnis();
+    }
 
-        window.showExplanation = function(idx) {
-            let expl = document.getElementById('explain-' + idx);
-            if (expl) expl.style.display = expl.style.display === 'none' ? 'block' : 'none';
-        }
+    function zeigeInfo(text, el) {
+      const infoBox = el.nextElementSibling;
+      infoBox.innerHTML = text;
+    }
 
-        window.finishQuiz = function() {
-            showResults = true;
-            renderQuiz();
-        }
-    </script>
-</body>
+    function zeigeErgebnis() {
+      const prozent = Math.round((richtige / 10) * 100);
+      const ergebnis = document.getElementById("ergebnis");
+      let farbe = "red";
+      let text = "Sehr viel üben!";
+      if (prozent >= 80) {
+        farbe = "green";
+        text = "✅ Gut gemacht! Du bist gut.";
+        document.getElementById("neustarten").style.backgroundColor = "green";
+        document.getElementById("neustarten").innerText = "Weiter – Du bist gut!";
+      } else if (prozent >= 50) {
+        farbe = "orange";
+        text = "Weitermachen!";
+        document.getElementById("neustarten").style.backgroundColor = "orange";
+        document.getElementById("neustarten").innerText = "Übe weiter!";
+      } else {
+        document.getElementById("neustarten").style.backgroundColor = "red";
+        document.getElementById("neustarten").innerText = "Mehr üben!";
+      }
+      ergebnis.style.color = farbe;
+      ergebnis.innerText = `Dein Ergebnis: ${prozent}% – ${text}`;
+    }
+
+    starteQuiz();
+  </script></body>
 </html>
