@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vergangenheit Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background: #f2f2f2;
+    }
+    .quiz-container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    .question {
+      margin: 20px 0 10px;
+      font-weight: bold;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #eee;
+      font-size: 16px;
+    }
+    .correct::after {
+      content: '✔';
+      color: green;
+      float: right;
+    }
+    .wrong::after {
+      content: '✖';
+      color: red;
+      float: right;
+    }
+    .result-button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      color: white;
+    }
+    .result-button.good { background-color: green; }
+    .result-button.medium { background-color: orange; }
+    .result-button.bad { background-color: red; }
+    .footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 18px;
+    }
+    .info-btn {
+      margin-top: 5px;
+      font-size: 14px;
+      color: blue;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div id="quiz"></div>
+    <button onclick="loadQuiz()" class="result-button" id="resultButton">Übung erneuern</button>
+    <div class="footer" id="footer"></div>
+  </div>
+
+<script>
+const questions = [];
+for (let i = 1; i <= 50; i++) {
+  const base = [
+    { text: "Ich ___ ein Auto.", correct: "habe", info: "Use 'haben' for possession." },
+    { text: "Er ___ müde gestern.", correct: "war", info: "'War' is simple past of 'sein'." },
+    { text: "Wir ___ nach Hause gegangen.", correct: "sind", info: "'Sein' is used with motion verbs." },
+    { text: "Ich ___ keine Zeit.", correct: "hatte", info: "Simple past of 'haben' for 'ich'." },
+    { text: "Du ___ sehr nett.", correct: "warst", info: "Simple past of 'sein' for 'du'." },
+  ];
+  questions.push(base[i % base.length]);
+}
+
+let score = 0;
+
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+function loadQuiz() {
+  score = 0;
+  document.getElementById("quiz").innerHTML = "";
+  document.getElementById("footer").innerText = "";
+  const resultBtn = document.getElementById("resultButton");
+  resultBtn.className = "result-button";
+
+  const selected = shuffle([...questions]).slice(0, 10);
+
+  selected.forEach((q, idx) => {
+    const container = document.createElement("div");
+    container.className = "question";
+    container.innerText = `Frage ${idx + 1}: ${q.text}`;
+
+    const optionDiv = document.createElement("div");
+    optionDiv.className = "options";
+    const options = shuffle(["habe", "bin", "war", "hatte"]);
+
+    options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.innerText = opt;
+      btn.onclick = () => {
+        if (btn.disabled) return;
+        if (opt === q.correct) {
+          btn.classList.add("correct");
+          score++;
+        } else {
+          btn.classList.add("wrong");
+        }
+        [...optionDiv.children].forEach(b => b.disabled = true);
+      };
+      optionDiv.appendChild(btn);
+    });
+
+    const infoBtn = document.createElement("button");
+    infoBtn.innerText = "Why this answer?";
+    infoBtn.className = "info-btn";
+    infoBtn.onclick = () => alert(q.info);
+
+    document.getElementById("quiz").appendChild(container);
+    document.getElementById("quiz").appendChild(optionDiv);
+    document.getElementById("quiz").appendChild(infoBtn);
+  });
+
+  setTimeout(showResults, 60000); // otomatik sonuç 60 sn sonra
+}
+
+function showResults() {
+  const percent = Math.round((score / 10) * 100);
+  const footer = document.getElementById("footer");
+  const resultBtn = document.getElementById("resultButton");
+
+  if (percent >= 80) {
+    footer.innerText = `Dein Ergebnis: ${score}/10 → Du bist gut!`;
+    resultBtn.classList.add("good");
+  } else if (percent >= 50) {
+    footer.innerText = `Dein Ergebnis: ${score}/10 → Weiter üben`;
+    resultBtn.classList.add("medium");
+  } else {
+    footer.innerText = `Dein Ergebnis: ${score}/10 → Du musst mehr lernen!`;
+    resultBtn.classList.add("bad");
+  }
+}
+loadQuiz();
+</script>
+</body>
+</html>
